@@ -121,13 +121,13 @@ contract SimpleStorage {
 ## Java智能合约客户端开发
 
 ### 开发环境及工具
-* BCOS区块链客户端	 （参考[BCOS使用文档]）
+* BCOS区块链客户端     （参考[BCOS使用文档]）
 * JDK
 * **solc** solidity编译器（直接使用远程二机制源或源码安装）
-	* Ubuntu安装
-		```apt install solc ``` 或 源码安装
-	* CentOS安装
-		```yum install solc``` 或 源码安装
+    * Ubuntu安装
+        ```apt install solc ``` 或 源码安装
+    * CentOS安装
+        ```yum install solc``` 或 源码安装
 * Java [web3j开发库]及其依赖库
 
 ### web3j介绍
@@ -186,23 +186,121 @@ BCOS参考中直接提供eclipse [sample完整工程](https://github.com/bcosorg
 sample工程包括：
  1. lib文件夹， 存放所有依赖开发库；
  2. res文件夹，存放测试钱包文件和配置文件
-	 * wallet.json，BCOS客户端钱文件（和以太坊钱包文件一样）
-	 * config.json，工程运行配置文件，详细说明参考readme.txt
+     * wallet.json，BCOS客户端钱文件（和以太坊钱包文件一样）
+     * config.json，工程运行配置文件，详细说明参考readme.txt
 3. bin文件夹， 程序运行目录
 导入工程后，配置好config.json对应rpc_host和rpc_port即可进行SimpleStorage合约的调测
 
 ## Nodejs智能合约客户端开发
 
-### It features: 
-- write a simple smart contract
-- deploy a contract
-### Quick Start:
-- running the startDemo
+### 开发环境及工具
+参考Java智能合约客户端开发，需要部署BCOS区块链客户端、安装solidity编译器，此外还需要安装Nodejs。
 
-``` sh
+## 构建客户端程序
+
+#### 编写Nodejs调用代码
+1. web3初始化
+```
+var Web3 = require('web3');
+……
+var web3sync = require('./web3sync');
+……
+
+if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+} else {
+    web3 = new Web3(new Web3.providers.HttpProvider(config.HttpProvider));
+}
+
+```
+2. 编译合约
+
+调用solc本地程序，编译合约文件SimpleStartDemo.sol
+```
+var filename = "SimpleStartDemo";
+console.log('Soc File :' + filename);
+
+try {
+    execSync("solc --abi  --bin   --overwrite -o " + config.Ouputpath + "  " + filename + ".sol");
+
+    console.log(filename + '编译成功！');
+} catch (e) {
+
+    console.log(filename + '编译失败!' + e);
+}
+
+```
+
+3. 部署合约
+
+部署完毕后，将合约的address和abi写入output路径下的文件
+
+```
+    var Contract = await web3sync.rawDeploy(config.account, config.privKey, filename);
+    console.log(filename + "部署成功！")
+```
+
+4. 读取合约保存的初始值
+
+通过读取output路径的文件，获取到合约的address和abi，构建合约实例对象
+```
+    var address = fs.readFileSync(config.Ouputpath + filename + '.address', 'utf-8');
+    var abi = JSON.parse(fs.readFileSync(config.Ouputpath /*+filename+".sol:"*/ + filename + '.abi', 'utf-8'));
+    var contract = web3.eth.contract(abi);
+    var instance = contract.at(address);
+    console.log("读取" + filename + "合约address:" + address);
+    var data = instance.getData();
+    console.log("接口调用前读取接口返回:" + data);
+```
+
+5. 调用合约，修改合约保存的值
+
+调用set接口，修改值为10，并且打印出交易哈希
+
+```
+    var func = "setData(int256)";
+    var params = [10];
+    var receipt = await web3sync.sendRawTransaction(config.account, config.privKey, address, func, params);
+
+    console.log("调用更新接口设置data=10" + '(交易哈希：' + receipt.transactionHash + ')');
+```
+6. 再次读取合约存储的值，验证合约调用是否成功
+
+
+```
+data = instance.getData();
+    console.log("接口调用后读取接口返回:" + data);
+```
+
+
+#### startDemo工程使用说明
+
+安装好依赖的开发环境和工具，执行如下命令
+
+``` 
  $ cd startDemo
  $ npm install
  $ babel-node index.js
+```
+输出结果
+
+```
+[root@VM_191_76_centos startDemo]# babel-node  index.js
+RPC=http://127.0.0.1:8545
+Ouputpath=./output/
+ ........................Start........................
+Soc File :SimpleStartDemo
+SimpleStartDemo编译成功！
+SimpleStartDemo合约地址 0x36054aa9ddfd684d47d14eaf17c8d0a1a22fde46
+SimpleStartDemo部署成功！
+读取SimpleStartDemo合约address:0x36054aa9ddfd684d47d14eaf17c8d0a1a22fde46
+接口调用前读取接口返回:5
+code_fun :  0xda358a3c
+txData_code :  0xda358a3c000000000000000000000000000000000000000000000000000000000000000a
+调用更新接口设置data=10(交易哈希：0x1cd8323fcf93d431657a04e292c0c9aebf3019ed4d5b3efd6ca8cd9ce75741ae)
+接口调用后读取接口返回:10
+==============================End============================================
+AddMsg: [in the set() method] from
 ```
 *********************************************************
 [web3j开发库]:https://github.com/bcosorg/bcos/blob/master/tool/java/output/

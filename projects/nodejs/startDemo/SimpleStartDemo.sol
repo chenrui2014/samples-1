@@ -4,7 +4,7 @@ contract SimpleStartDemo {
     int256 storedData;
     event AddMsg(address indexed sender, bytes32 msg);
     function SimpleStartDemo() {
-        storedData = 2;
+        storedData = 5;
     }
 
     function setData(int256 x) public{
