@@ -182,7 +182,7 @@ Uint256 value = simpleStorage.get().get();
 ```
 
 #### sample工程使用说明
-BCOS参考中直接提供eclipse[sample完整工程](https://github.com/bcosorg/bcos/blob/master/sample/projects/java/sample) ， 可以直接导入工程。
+BCOS参考中直接提供eclipse [sample完整工程](https://github.com/bcosorg/samples/tree/master/projects/java/sample) ， 可以直接导入工程。
 sample工程包括：
  1. lib文件夹， 存放所有依赖开发库；
  2. res文件夹，存放测试钱包文件和配置文件
@@ -208,5 +208,5 @@ sample工程包括：
 [web3j开发库]:https://github.com/bcosorg/bcos/blob/master/tool/java/output/
 [第三方依赖库]:https://github.com/bcosorg/bcos/blob/master/tool/java/third-part/
 [BCOS使用文档]:https://github.com/bcosorg/bcos/blob/master/doc/manual/manual.md
-[BCOS工具包]:https://github.com/bcosorg/bcos/blob/master/sample/dependencies/BCOS-Tools.tar.gz
+[BCOS工具包]:https://github.com/bcosorg/samples/blob/master/dependencies/compile/BCOS_Tools.tar.gz
 [web3j]:https://docs.web3j.io/
