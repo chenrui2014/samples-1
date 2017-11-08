@@ -5,11 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.bcos.sample.web3j.SimpleStorage;
+import org.bcos.sample.web3j.SimpleStorage.LogEventEventResponse;
 import org.bcos.web3j.tx.BcosRawTxManager;
+//import org.bcos.web3j.tx.BcosRawTxManager;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.Credentials;
@@ -21,14 +24,14 @@ import org.web3j.protocol.parity.Parity;
 import com.alibaba.fastjson.JSON;
 
 public class BcosApp {
-	private BcosConfig configure;
-	private Address deployAddress;
-	private SimpleStorage simpleStorage;
-	private Parity web3j;
-	private Credentials credentials;
+	protected BcosConfig configure;
+	protected Address deployAddress;
+	protected SimpleStorage simpleStorage;
+	protected Parity web3j;
+	protected Credentials credentials;
 	
-	public static BigInteger gasPrice = new BigInteger("99999999999");
-	public static BigInteger gasLimited = new BigInteger("9999999999999");
+	public static BigInteger gasPrice = new BigInteger("0");
+	public static BigInteger gasLimited = new BigInteger("1000000");
 	public static BigInteger initialValue = new BigInteger("0");
 	
 	public BcosApp() {
@@ -156,6 +159,16 @@ public class BcosApp {
 		
 		//System.out.println("execute transaction successully, txHash: " + receipt.getTransactionHash());
 		return receipt;
+	}
+	
+	public String getLogInfo(TransactionReceipt receipt){
+		String info = new String();
+		List<LogEventEventResponse> responses = simpleStorage.getLogEventEvents(receipt);
+		for (LogEventEventResponse logEventEventResponse : responses) {
+			info = "info: " + logEventEventResponse.info.getValue() + ", address: " + logEventEventResponse.sender.toString();
+		}
+		
+		return info;
 	}
 	
 	public BigInteger executeCall(Address address) {
